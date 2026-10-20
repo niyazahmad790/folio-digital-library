@@ -1,0 +1,58 @@
+services:
+  # 1. MySQL Database Container
+  mysql-db:
+    image: mysql:8.0
+    container_name: digital_library_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: digital_library
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - library-net
+
+  # 2. Spring Boot Backend Container
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digital_library_backend
+    restart: always
+    depends_on:
+      - mysql-db
+    environment:
+      DB_URL: jdbc:mysql://mysql-db:3306/digital_library?createDatabaseIfNotExist=true&useSSL=false
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      JWT_SECRET: my_super_secret_jwt_key_at_least_32_characters_long_12345
+      SPRING_AI_OLLAMA_BASE_URL: http://host.docker.internal:11434
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - library-net
+
+  # 3. React Frontend Container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: digital_library_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - library-net
+
+volumes:
+  mysql_data:
+
+networks:
+  library-net:
+    driver: bridge
