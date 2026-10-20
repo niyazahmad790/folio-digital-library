@@ -36,14 +36,15 @@ public class LibraryChatService {
     // Load current database books into the vector store.
     @PostConstruct
     public void indexBooks() {
-
-        List<Book> books = bookRepository.findAll();
-
-        for (Book book : books) {
-            indexBook(book);
+        try {
+            List<Book> books = bookRepository.findAll();
+            for (Book book : books) {
+                indexBook(book);
+            }
+            System.out.println("[RAG] Indexed " + books.size() + " library books.");
+        } catch (Exception e) {
+            System.out.println("[RAG] Warning: Vector indexing skipped on startup (Ollama not connected): " + e.getMessage());
         }
-
-        System.out.println("[RAG] Indexed " + books.size() + " library books.");
     }
 
     // Create a stable ID for every book's vector document.
