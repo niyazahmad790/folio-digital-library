@@ -1,0 +1,12 @@
+/* Global baseline */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #080707;
+  color: #f7f3ed;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: #080707;
+}
